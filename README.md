@@ -1,10 +1,24 @@
 # Geohash
 
-**TODO: Add description**
+Geohash encode/decode implementation for Elixir
+
+## Examples
+
+- Encode coordinates with `Geohash.encode(lat, lon, precision \\ 11)`
+
+```Elixir
+Geohash.encode(42.6, -5.6, 5)
+# "ezs42"
+```
+
+- Decode coordinates with `Geohash.decode(geohash)`
+
+```Elixir
+Geohash.decode("ezs42")
+# {42.605, -5.603}
+```
 
 ## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
 
   1. Add geohash to your list of dependencies in `mix.exs`:
 

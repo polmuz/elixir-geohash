@@ -3,11 +3,25 @@ defmodule Geohash.Mixfile do
 
   def project do
     [app: :geohash,
-     version: "0.0.1",
+     version: "0.1.0",
      elixir: "~> 1.1",
+     description: description,
+     package: package,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
+  end
+
+  defp description do
+  """
+  Geohash encode/decode implementation for Elixir
+  """
+  end
+
+  defp package do
+    [ maintainers: ["Pablo Mouzo"],
+      licenses: ["Apache 2.0"],
+      links: %{"GitHub" => "https://github.com/polmuz/elixir-geohash"}]
   end
 
   # Configuration for the OTP application

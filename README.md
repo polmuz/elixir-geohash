@@ -25,7 +25,7 @@ Geohash.decode("ezs42")
   1. Add geohash to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:geohash, "~> 0.1"}]
+          [{:geohash, "~> 0.1.1"}]
         end
 
   2. Ensure geohash is started before your application:

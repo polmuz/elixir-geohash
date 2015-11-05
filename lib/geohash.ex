@@ -141,7 +141,7 @@ defmodule Geohash do
     end
   end
 
-  docp ~S"""
+  @docp ~S"""
   Rounding criteria taken from:
   https://github.com/chrisveness/latlon-geohash/blob/decb13b09a7f1e219a2ca86ff8432fb9e2774fc7/latlon-geohash.js#L117
 

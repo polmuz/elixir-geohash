@@ -1,5 +1,7 @@
 # Geohash
 
+[![Build Status](https://travis-ci.org/polmuz/elixir-geohash.svg?branch=master)](https://travis-ci.org/polmuz/elixir-geohash)
+
 Geohash encode/decode implementation for Elixir
 
 ## Examples

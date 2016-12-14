@@ -110,6 +110,17 @@ defmodule Geohash do
     {lat, lon}
   end
 
+  @doc ~S"""
+  Calculate adjacent/2 geohash in ordinal direction ["n","s","e","w"]
+  Deals with boundary cases when adjacent is not of the same prefix.
+
+  ##Examples
+  ```
+  iex> Geohash.adjacent("abx1","n")
+  "abx4"
+  ```
+
+  """
   def adjacent("",_direction) do
     {:error, "empty geohash"}
   end
@@ -158,6 +169,17 @@ defmodule Geohash do
     q = Enum.slice(@geobase32, pos, 1)
     parent <> to_string(q)
   end
+  @doc ~S"""
+  Calculate adjacent hashes for the 8 touching neighbors/1
+
+  ## Examples
+
+  ```
+  iex> Geohash.neighbors("abx1")
+  [{"n", "abx4"}, {"s", "abx0"}, {"e", "abx3"}, {"w", "abwc"}, {"ne", "abx6"},
+ {"se", "abx2"}, {"nw", "abwf"}, {"sw", "abwb"}]
+  ```
+  """
   def neighbors(geohash) do
     ns = Enum.map( ~w(n s), fn dir -> {dir, adjacent(geohash,dir)} end)
     diag = Enum.flat_map( ~w(e w), fn dir -> Enum.map( ns, fn n2 -> {elem(n2,0) <> to_string(dir), adjacent(elem(n2,1),dir) } end) end)

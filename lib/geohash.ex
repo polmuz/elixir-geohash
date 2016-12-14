@@ -118,8 +118,8 @@ defmodule Geohash do
   ```
   iex> Geohash.adjacent("abx1","n")
   "abx4"
-  ```
 
+```
   """
   def adjacent("",_direction) do
     {:error, "empty geohash"}
@@ -178,6 +178,7 @@ defmodule Geohash do
   iex> Geohash.neighbors("abx1")
   [{"n", "abx4"}, {"s", "abx0"}, {"e", "abx3"}, {"w", "abwc"}, {"ne", "abx6"},
  {"se", "abx2"}, {"nw", "abwf"}, {"sw", "abwb"}]
+
   ```
   """
   def neighbors(geohash) do

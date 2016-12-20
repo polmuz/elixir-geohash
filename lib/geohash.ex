@@ -110,26 +110,6 @@ defmodule Geohash do
     {lat, lon}
   end
 
-  @doc ~S"""
-  Calculate adjacent/2 geohash in ordinal direction ["n","s","e","w"]
-  Deals with boundary cases when adjacent is not of the same prefix.
-
-  ##Examples
-  ```
-  iex> Geohash.adjacent("abx1","n")
-  "abx4"
-
-```
-  """
-  def adjacent("",_direction) do
-    {:error, "empty geohash"}
-  end
-  def adjacent(geohash,direction) when is_list(geohash) do
-    adjacent(to_string(geohash),direction)
-  end
-  def adjacent(geohash,direction) when is_bitstring(geohash) do
-    adjacent_aux(String.downcase(geohash),String.downcase(to_string(direction)))
-  end
   @neighbor %{
     "n" => { 'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx' },
     "s" => { '14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp' },
@@ -144,10 +124,23 @@ defmodule Geohash do
   }
 
   defp border_case(direction,type,tail) do
-    elem(@border[direction],type) |>
-    Enum.find_index(fn r -> r==tail end)
+    @border[direction]
+    |> elem(type)
+    |> Enum.find_index(fn r -> r==tail end)
   end
-  defp adjacent_aux(geohash,direction) when direction in ["n","s","w","e"] do
+  
+  @doc ~S"""
+  Calculate adjacent/2 geohash in ordinal direction ["n","s","e","w"]
+  Deals with boundary cases when adjacent is not of the same prefix.
+
+  ##Examples
+  ```
+  iex> Geohash.adjacent("abx1","n")
+  "abx4"
+
+```
+  """
+  def adjacent(geohash,direction) when direction in ["n","s","w","e"] do
     prefix_len = byte_size(geohash)-1
     # parent will be a string of the prefix, lastCh will be an int of last char
     <<parent::binary-size(prefix_len), lastCh::size(8)>> = geohash
@@ -155,20 +148,21 @@ defmodule Geohash do
  
     # check for edge-cases which don't share common prefix
     parent = if ( border_case(direction,type,lastCh) && prefix_len > 0 ) do
-      adjacent_aux(parent,direction)
+      adjacent(parent,direction)
     else
       parent
     end
 
     # append letter for direction to parent
     # look up index of last char use as position in base32
-    pos = @neighbor[direction] |>
-      elem(type) |>
-      Enum.find_index(fn r -> r==lastCh end)
+    pos = @neighbor[direction]
+    |> elem(type)
+    |> Enum.find_index(fn r -> r==lastCh end)
 
     q = Enum.slice(@geobase32, pos, 1)
     parent <> to_string(q)
   end
+  
   @doc ~S"""
   Calculate adjacent hashes for the 8 touching neighbors/1
 
@@ -176,16 +170,29 @@ defmodule Geohash do
 
   ```
   iex> Geohash.neighbors("abx1")
-  [{"n", "abx4"}, {"s", "abx0"}, {"e", "abx3"}, {"w", "abwc"}, {"ne", "abx6"},
- {"se", "abx2"}, {"nw", "abwf"}, {"sw", "abwb"}]
+  %{"n" => "abx4",
+    "s" => "abx0",
+    "e" => "abx3",
+    "w" => "abwc",
+    "ne" => "abx6",
+    "se" => "abx2",
+    "nw" => "abwf",
+    "sw" => "abwb"}
 
   ```
   """
   def neighbors(geohash) do
-    ns = Enum.map( ~w(n s), fn dir -> {dir, adjacent(geohash,dir)} end)
-    diag = Enum.flat_map( ~w(e w), fn dir -> Enum.map( ns, fn n2 -> {elem(n2,0) <> to_string(dir), adjacent(elem(n2,1),dir) } end) end)
-    ew = Enum.map( ~w(e w), fn dir -> {dir, adjacent(geohash,dir)} end)
-    ns ++ ew ++ diag
+    n = adjacent(geohash,"n")
+    s = adjacent(geohash,"s")
+    %{"n" => n,
+      "s" => s,
+      "e" => adjacent(geohash,"e"),
+      "w" => adjacent(geohash,"w"),
+      "ne" => adjacent(n,"e"),
+      "se" => adjacent(s,"e"),
+      "nw" => adjacent(n,"w"),
+      "sw" => adjacent(s,"w"),
+    }
   end
   defp filter_even(bitslists) do
     bitslists |> filter_periodically(2, 0)

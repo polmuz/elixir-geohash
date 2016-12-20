@@ -25,14 +25,14 @@ defmodule GeohashTest do
   end
 
   test "Geohash.neighbors" do
-    assert Geohash.neighbors("6gkzwgjz") == [{"n", "6gkzwgmb"},
-					     {"s", "6gkzwgjy"},
-					     {"e", "6gkzwgnp"},
-					     {"w", "6gkzwgjx"},
-					     {"ne", "6gkzwgq0"},
-					     {"se", "6gkzwgnn"},
-					     {"nw", "6gkzwgm8"},
-					     {"sw", "6gkzwgjw"}]
-    assert Geohash.adjacent('ww8p1r4t8','e') == "ww8p1r4t9"
+    assert Geohash.neighbors("6gkzwgjz") == %{"n" => "6gkzwgmb",
+					      "s" => "6gkzwgjy",
+					      "e" => "6gkzwgnp",
+					      "w" => "6gkzwgjx",
+					      "ne"=> "6gkzwgq0",
+					      "se"=> "6gkzwgnn",
+					      "nw"=> "6gkzwgm8",
+					      "sw"=> "6gkzwgjw"}
+    assert Geohash.adjacent("ww8p1r4t8","e") == "ww8p1r4t9"
   end
 end

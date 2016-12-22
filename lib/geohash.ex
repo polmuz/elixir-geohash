@@ -110,6 +110,90 @@ defmodule Geohash do
     {lat, lon}
   end
 
+  @neighbor %{
+    "n" => { 'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx' },
+    "s" => { '14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp' },
+    "e" => { 'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy' },
+    "w" => { '238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb' },
+  }
+  @border %{
+    "n" => { 'prxz',     'bcfguvyz' },
+    "s" => { '028b',     '0145hjnp' },
+    "e" => { 'bcfguvyz', 'prxz'     },
+    "w" => { '0145hjnp', '028b'     },
+  }
+
+  defp border_case(direction,type,tail) do
+    @border[direction]
+    |> elem(type)
+    |> Enum.find_index(fn r -> r==tail end)
+  end
+  
+  @doc ~S"""
+  Calculate adjacent/2 geohash in ordinal direction ["n","s","e","w"]
+  Deals with boundary cases when adjacent is not of the same prefix.
+
+  ##Examples
+  ```
+  iex> Geohash.adjacent("abx1","n")
+  "abx4"
+
+```
+  """
+  def adjacent(geohash,direction) when direction in ["n","s","w","e"] do
+    prefix_len = byte_size(geohash)-1
+    # parent will be a string of the prefix, lastCh will be an int of last char
+    <<parent::binary-size(prefix_len), lastCh::size(8)>> = geohash
+    type = rem(prefix_len+1,2)
+ 
+    # check for edge-cases which don't share common prefix
+    parent = if ( border_case(direction,type,lastCh) && prefix_len > 0 ) do
+      adjacent(parent,direction)
+    else
+      parent
+    end
+
+    # append letter for direction to parent
+    # look up index of last char use as position in base32
+    pos = @neighbor[direction]
+    |> elem(type)
+    |> Enum.find_index(fn r -> r==lastCh end)
+
+    q = Enum.slice(@geobase32, pos, 1)
+    parent <> to_string(q)
+  end
+  
+  @doc ~S"""
+  Calculate adjacent hashes for the 8 touching neighbors/1
+
+  ## Examples
+
+  ```
+  iex> Geohash.neighbors("abx1")
+  %{"n" => "abx4",
+    "s" => "abx0",
+    "e" => "abx3",
+    "w" => "abwc",
+    "ne" => "abx6",
+    "se" => "abx2",
+    "nw" => "abwf",
+    "sw" => "abwb"}
+
+  ```
+  """
+  def neighbors(geohash) do
+    n = adjacent(geohash,"n")
+    s = adjacent(geohash,"s")
+    %{"n" => n,
+      "s" => s,
+      "e" => adjacent(geohash,"e"),
+      "w" => adjacent(geohash,"w"),
+      "ne" => adjacent(n,"e"),
+      "se" => adjacent(s,"e"),
+      "nw" => adjacent(n,"w"),
+      "sw" => adjacent(s,"w"),
+    }
+  end
   defp filter_even(bitslists) do
     bitslists |> filter_periodically(2, 0)
   end

@@ -48,12 +48,11 @@ defmodule Geohash do
     0
   end
 
-  @docp ~S"""
-  Decodes given lat or lon creating the bits using 2^x to
-  positionate the bit instead of building a bitstring.
+  # Decodes given lat or lon creating the bits using 2^x to
+  # positionate the bit instead of building a bitstring.
 
-  It moves by 2 to already set the bits on odd or even positions.
-  """
+  # It moves by 2 to already set the bits on odd or even positions.
+
   defp geo_to_bits(n, position, {gmin, gmax}) do
     mid = (gmin + gmax) / 2
 
@@ -225,13 +224,11 @@ defmodule Geohash do
     end
   end
 
-  @docp ~S"""
-  Rounding criteria taken from:
-  https://github.com/chrisveness/latlon-geohash/blob/decb13b09a7f1e219a2ca86ff8432fb9e2774fc7/latlon-geohash.js#L117
+  # Rounding criteria taken from:
+  # https://github.com/chrisveness/latlon-geohash/blob/decb13b09a7f1e219a2ca86ff8432fb9e2774fc7/latlon-geohash.js#L117
 
-  See demo of that implementation here:
-  http://www.movable-type.co.uk/scripts/geohash.html
-  """
+  # See demo of that implementation here:
+  # http://www.movable-type.co.uk/scripts/geohash.html
   defp round_coordinate(coord, {min, max}) do
     Float.round(coord, round(Float.floor(2 - :math.log10(max-min))))
   end

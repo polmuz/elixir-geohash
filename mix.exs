@@ -5,11 +5,11 @@ defmodule Geohash.Mixfile do
     [app: :geohash,
      version: "0.1.1",
      elixir: "~> 1.1",
-     description: description,
-     package: package,
+     description: description(),
+     package: package(),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps()]
   end
 
   defp description do

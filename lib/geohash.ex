@@ -1,5 +1,7 @@
 defmodule Geohash do
-
+  @moduledoc ~S"""
+  Geohash encode/decode and helper functions
+  """
 
   @geobase32 '0123456789bcdefghjkmnpqrstuvwxyz'
 
@@ -12,7 +14,8 @@ defmodule Geohash do
   "ezs42"
   """
   def encode(lat, lon, precision \\ 11) do
-    encode_to_bits(lat, lon, precision * 5) |> to_geobase32
+    bits = encode_to_bits(lat, lon, precision * 5)
+    to_geobase32(bits)
   end
 
   @doc ~S"""
@@ -56,10 +59,9 @@ defmodule Geohash do
   defp geo_to_bits(n, position, {gmin, gmax}) do
     mid = (gmin + gmax) / 2
 
-    cond do
-      n >= mid ->
+    if n >= mid do
         round(:math.pow(2, position)) + geo_to_bits(n, position - 2, {mid, gmax})
-      n < mid ->
+    else
         geo_to_bits(n, position - 2, {gmin, mid})
     end
   end
@@ -89,7 +91,8 @@ defmodule Geohash do
   {42.605, -5.603}
   """
   def decode_to_bits(geohash) do
-    to_char_list(geohash)
+    geohash
+    |> to_char_list
     |> Enum.map(&from_geobase32/1)
     |> Enum.reduce(<<>>, fn(c, acc) -> << acc::bitstring, c::bitstring >> end)
   end
@@ -110,24 +113,24 @@ defmodule Geohash do
   end
 
   @neighbor %{
-    "n" => { 'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx' },
-    "s" => { '14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp' },
-    "e" => { 'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy' },
-    "w" => { '238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb' },
+    "n" => {'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx'},
+    "s" => {'14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp'},
+    "e" => {'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy'},
+    "w" => {'238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb'},
   }
   @border %{
-    "n" => { 'prxz',     'bcfguvyz' },
-    "s" => { '028b',     '0145hjnp' },
-    "e" => { 'bcfguvyz', 'prxz'     },
-    "w" => { '0145hjnp', '028b'     },
+    "n" => {'prxz', 'bcfguvyz'},
+    "s" => {'028b', '0145hjnp'},
+    "e" => {'bcfguvyz', 'prxz'},
+    "w" => {'0145hjnp', '028b'},
   }
 
   defp border_case(direction,type,tail) do
     @border[direction]
     |> elem(type)
-    |> Enum.find_index(fn r -> r==tail end)
+    |> Enum.find_index(fn r -> r == tail end)
   end
-  
+
   @doc ~S"""
   Calculate adjacent/2 geohash in ordinal direction ["n","s","e","w"]
   Deals with boundary cases when adjacent is not of the same prefix.
@@ -139,14 +142,14 @@ defmodule Geohash do
 
 ```
   """
-  def adjacent(geohash,direction) when direction in ["n","s","w","e"] do
-    prefix_len = byte_size(geohash)-1
-    # parent will be a string of the prefix, lastCh will be an int of last char
-    <<parent::binary-size(prefix_len), lastCh::size(8)>> = geohash
-    type = rem(prefix_len+1,2)
- 
+  def adjacent(geohash,direction) when direction in ["n", "s", "w", "e"] do
+    prefix_len = byte_size(geohash) - 1
+    # parent will be a string of the prefix, last_ch will be an int of last char
+    <<parent::binary-size(prefix_len), last_ch::size(8)>> = geohash
+    type = rem(prefix_len + 1, 2)
+
     # check for edge-cases which don't share common prefix
-    parent = if ( border_case(direction,type,lastCh) && prefix_len > 0 ) do
+    parent = if border_case(direction, type, last_ch) && prefix_len > 0 do
       adjacent(parent,direction)
     else
       parent
@@ -156,12 +159,12 @@ defmodule Geohash do
     # look up index of last char use as position in base32
     pos = @neighbor[direction]
     |> elem(type)
-    |> Enum.find_index(fn r -> r==lastCh end)
+    |> Enum.find_index(fn r -> r == last_ch end)
 
     q = Enum.slice(@geobase32, pos, 1)
     parent <> to_string(q)
   end
-  
+
   @doc ~S"""
   Calculate adjacent hashes for the 8 touching neighbors/1
 
@@ -209,17 +212,16 @@ defmodule Geohash do
   end
 
   defp bits_to_coordinate(<<>>, {min, max}) do
-    (min + max) / 2
-    |> round_coordinate({min, max})
+    mid = (min + max) / 2
+    round_coordinate(mid, {min, max})
   end
 
   defp bits_to_coordinate(bits, {min, max}) do
     << bit::1, rest::bitstring >> = bits
     mid = (min + max) / 2
-    cond do
-      bit == 1 ->
+    if bit == 1 do
         bits_to_coordinate(rest, {mid, max})
-      bit == 0 ->
+    else
         bits_to_coordinate(rest, {min, mid})
     end
   end
@@ -230,11 +232,12 @@ defmodule Geohash do
   # See demo of that implementation here:
   # http://www.movable-type.co.uk/scripts/geohash.html
   defp round_coordinate(coord, {min, max}) do
-    Float.round(coord, round(Float.floor(2 - :math.log10(max-min))))
+    Float.round(coord, round(Float.floor(2 - :math.log10(max - min))))
   end
 
   defp from_geobase32(char) do
-    Enum.with_index(@geobase32)
+    @geobase32
+    |> Enum.with_index
     |> Enum.filter_map(fn {x, _} -> x == char end, fn {_, i} -> <<i::5>> end)
     |> List.first
   end

@@ -1,5 +1,6 @@
 defmodule GeohashTest do
   use ExUnit.Case
+  use ExCheck
   doctest Geohash
 
   test "Geohash.encode" do
@@ -26,13 +27,86 @@ defmodule GeohashTest do
 
   test "Geohash.neighbors" do
     assert Geohash.neighbors("6gkzwgjz") == %{"n" => "6gkzwgmb",
-					      "s" => "6gkzwgjy",
-					      "e" => "6gkzwgnp",
-					      "w" => "6gkzwgjx",
-					      "ne"=> "6gkzwgq0",
-					      "se"=> "6gkzwgnn",
-					      "nw"=> "6gkzwgm8",
-					      "sw"=> "6gkzwgjw"}
+                                              "s" => "6gkzwgjy",
+                                              "e" => "6gkzwgnp",
+                                              "w" => "6gkzwgjx",
+                                              "ne"=> "6gkzwgq0",
+                                              "se"=> "6gkzwgnn",
+                                              "nw"=> "6gkzwgm8",
+                                              "sw"=> "6gkzwgjw"}
     assert Geohash.adjacent("ww8p1r4t8","e") == "ww8p1r4t9"
+  end
+
+  @geobase32 '0123456789bcdefghjkmnpqrstuvwxyz'
+
+  @tag iterations: 10000
+  property "decode is reversible" do
+    test_domain = resize(12, non_empty(list(elements(@geobase32))))
+    for_all geohash in test_domain do
+      geohash = to_string(geohash)
+      precision = String.length(geohash)
+      {lat, lng} = Geohash.decode(geohash)
+      new_geohash = Geohash.encode(lat, lng, precision)
+      geohash == new_geohash
+    end
+  end
+
+  def coords do
+    domain(
+      :coord_lat,
+      fn (self, _size) ->
+        lat = 90.0 - :rand.uniform * 90.0 * 2
+        lng = 180.0 - :rand.uniform * 180.0 * 2
+        {self, {lat, lng}}
+      end,
+      fn
+        (_self, _value) -> {0, 0}
+      end
+    )
+  end
+
+  # TODO: Check if error margins are correct, if so, fix error
+  #       in rounding code
+  # Error margins taken from Wikipedia's Geohash page
+  # @error_margin %{
+  #   1 => {23, 23},
+  #   2 => {2.8, 5.6},
+  #   3 => {0.70, 0.7},
+  #   4 => {0.087, 0.18},
+  #   5 => {0.022, 0.022},
+  #   6 => {0.0027, 0.0055},
+  #   7 => {0.00068, 0.00068},
+  #   8 => {0.000085, 0.00017},
+  # }
+  #
+  # property "errors are below margin after encode/decode" do
+  #   for_all {lat, lng} in coords() do
+  #     precision = :rand.uniform(8)
+  #     geohash = Geohash.encode(lat, lng, precision)
+  #     {new_lat, new_lng} = Geohash.decode(geohash)
+  #     new_geohash = Geohash.encode(new_lat, new_lng, precision)
+  #     {lat_error, lng_error} = @error_margin[precision]
+  #     ok? = (abs(new_lat - lat) <= lat_error and abs(lng - new_lng) <= lng_error)
+  #     unless ok? do
+  #       IO.inspect {"coords", {lat, lng}}
+  #       IO.inspect {"precision", precision}
+  #       IO.inspect {"new coords", {new_lat, new_lng}}
+  #       IO.inspect {"error margin", {lat_error, lng_error}}
+  #       IO.inspect {"real error", {new_lat - lat, lng - new_lng}}
+  #       IO.inspect {geohash, new_geohash}
+  #     end
+  #     ok?
+  #   end
+  # end
+
+  @tag iterations: 10000
+  property "encode -> decode -> encode is the same geohash" do
+    for_all {lat, lng} in coords() do
+      precision = :rand.uniform(8)
+      geohash = Geohash.encode(lat, lng, precision)
+      {new_lat, new_lng} = Geohash.decode(geohash)
+      new_geohash = Geohash.encode(new_lat, new_lng, precision)
+      assert geohash == new_geohash
+    end
   end
 end

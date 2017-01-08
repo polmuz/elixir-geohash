@@ -43,7 +43,9 @@ defmodule Geohash.Mixfile do
   defp deps do
     [
       {:credo, "~> 0.3", only: [:dev, :test]},
-      {:ex_doc, ">= 0.0.0", only: :dev}
+      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:excheck, "~> 0.5", only: :test},
+      {:triq, github: "triqng/triq", only: :test}
     ]
   end
 end

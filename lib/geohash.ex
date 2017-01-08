@@ -125,7 +125,7 @@ defmodule Geohash do
     "w" => {'0145hjnp', '028b'},
   }
 
-  defp border_case(direction,type,tail) do
+  defp border_case(direction, type, tail) do
     @border[direction]
     |> elem(type)
     |> Enum.find_index(fn r -> r == tail end)
@@ -136,13 +136,14 @@ defmodule Geohash do
   Deals with boundary cases when adjacent is not of the same prefix.
 
   ##Examples
+
   ```
   iex> Geohash.adjacent("abx1","n")
   "abx4"
 
-```
+  ```
   """
-  def adjacent(geohash,direction) when direction in ["n", "s", "w", "e"] do
+  def adjacent(geohash, direction) when direction in ["n", "s", "w", "e"] do
     prefix_len = byte_size(geohash) - 1
     # parent will be a string of the prefix, last_ch will be an int of last char
     <<parent::binary-size(prefix_len), last_ch::size(8)>> = geohash
@@ -196,6 +197,7 @@ defmodule Geohash do
       "sw" => adjacent(s,"w"),
     }
   end
+
   defp filter_even(bitslists) do
     bitslists |> filter_periodically(2, 0)
   end

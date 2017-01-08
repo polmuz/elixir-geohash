@@ -20,12 +20,33 @@ Geohash.decode("ezs42")
 # {42.605, -5.603}
 ```
 
+- Find neighbors
+
+```Elixir
+Geohash.neighbors("abx1")
+# %{"n" => "abx4",
+#   "s" => "abx0",
+#   "e" => "abx3",
+#   "w" => "abwc",
+#   "ne" => "abx6",
+#   "se" => "abx2",
+#   "nw" => "abwf",
+#   "sw" => "abwb"}
+```
+
+- Find adjacent
+
+```Elixir
+Geohash.adjacent("abx1","n")
+# "abx4"
+```
+
 ## Installation
 
   1. Add geohash to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:geohash, "~> 0.1.1"}]
+          [{:geohash, "~> 1.0"}]
         end
 
   2. Ensure geohash is started before your application:

@@ -4,7 +4,9 @@
 
 Geohash encode/decode implementation for Elixir
 
-## Examples
+## [Documentation](https://hexdocs.pm/geohash/)
+
+## Usage
 
 - Encode coordinates with `Geohash.encode(lat, lon, precision \\ 11)`
 

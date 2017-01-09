@@ -1,6 +1,43 @@
 defmodule Geohash do
   @moduledoc ~S"""
   Geohash encode/decode and helper functions
+
+  ## Usage
+
+  - Encode coordinates with `Geohash.encode(lat, lon, precision \\ 11)`
+
+  ```
+  Geohash.encode(42.6, -5.6, 5)
+  # "ezs42"
+  ```
+
+  - Decode coordinates with `Geohash.decode(geohash)`
+
+  ```
+  Geohash.decode("ezs42")
+  # {42.605, -5.603}
+  ```
+
+  - Find neighbors with `Geohash.neighbors(geohash)`
+
+  ```
+  Geohash.neighbors("abx1")
+  # %{"n" => "abx4",
+  #   "s" => "abx0",
+  #   "e" => "abx3",
+  #   "w" => "abwc",
+  #   "ne" => "abx6",
+  #   "se" => "abx2",
+  #   "nw" => "abwf",
+  #   "sw" => "abwb"}
+  ```
+
+  - Find adjacent with `Geohash.adjacent(geohash, direction)`
+
+  ```
+  Geohash.adjacent("abx1", "n")
+  # "abx4"
+  ```
   """
 
   @geobase32 '0123456789bcdefghjkmnpqrstuvwxyz'
@@ -10,8 +47,11 @@ defmodule Geohash do
 
   ## Examples
 
+  ```
   iex> Geohash.encode(42.6, -5.6, 5)
   "ezs42"
+
+  ```
   """
   def encode(lat, lon, precision \\ 11) do
     bits = encode_to_bits(lat, lon, precision * 5)
@@ -23,8 +63,11 @@ defmodule Geohash do
 
   ## Examples
 
+  ```
   iex> Geohash.encode_to_bits(42.6, -5.6, 25)
   <<0b0110111111110000010000010::25>>
+
+  ```
   """
   def encode_to_bits(lat, lon, bits_length) do
     starting_position = bits_length - 1
@@ -73,8 +116,11 @@ defmodule Geohash do
 
   ## Examples
 
-  iex> Geohash.decode("ezs42")
+  ```
+  iex> {lat, lng} = Geohash.decode("ezs42")
   {42.605, -5.603}
+
+  ```
   """
   def decode(geohash) do
     geohash
@@ -83,12 +129,15 @@ defmodule Geohash do
   end
 
   @doc ~S"""
-  Decodes given geohash to a coordinate pair
+  Decodes given geohash to a bitstring
 
   ## Examples
 
-  iex> Geohash.decode("ezs42")
-  {42.605, -5.603}
+  ```
+  iex> Geohash.decode_to_bits("ezs42")
+  <<0b0110111111110000010000010::25>>
+
+  ```
   """
   def decode_to_bits(geohash) do
     geohash
@@ -97,7 +146,7 @@ defmodule Geohash do
     |> Enum.reduce(<<>>, fn(c, acc) -> << acc::bitstring, c::bitstring >> end)
   end
 
-  def bits_to_coordinates_pair(bits) do
+  defp bits_to_coordinates_pair(bits) do
     bitslist = for << bit::1 <- bits >>, do: bit
     lat = bitslist
     |> filter_odd
@@ -132,10 +181,10 @@ defmodule Geohash do
   end
 
   @doc ~S"""
-  Calculate adjacent/2 geohash in ordinal direction ["n","s","e","w"]
+  Calculate `adjacent/2` geohash in ordinal direction `["n","s","e","w"]`.
   Deals with boundary cases when adjacent is not of the same prefix.
 
-  ##Examples
+  ## Examples
 
   ```
   iex> Geohash.adjacent("abx1","n")
@@ -167,7 +216,7 @@ defmodule Geohash do
   end
 
   @doc ~S"""
-  Calculate adjacent hashes for the 8 touching neighbors/1
+  Calculate adjacent hashes for the 8 touching `neighbors/1`
 
   ## Examples
 

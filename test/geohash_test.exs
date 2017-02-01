@@ -34,15 +34,16 @@ defmodule GeohashTest do
                                               "se"=> "6gkzwgnn",
                                               "nw"=> "6gkzwgm8",
                                               "sw"=> "6gkzwgjw"}
-    assert Geohash.adjacent("ww8p1r4t8","e") == "ww8p1r4t9"
+    assert Geohash.adjacent("ww8p1r4t8", "e") == "ww8p1r4t9"
   end
 
   @geobase32 '0123456789bcdefghjkmnpqrstuvwxyz'
 
+  defp geocodes_domain, do: resize(12, non_empty(list(elements(@geobase32))))
+
   @tag iterations: 10000
   property "decode is reversible" do
-    test_domain = resize(12, non_empty(list(elements(@geobase32))))
-    for_all geohash in test_domain do
+    for_all geohash in geocodes_domain() do
       geohash = to_string(geohash)
       precision = String.length(geohash)
       {lat, lng} = Geohash.decode(geohash)
@@ -51,7 +52,23 @@ defmodule GeohashTest do
     end
   end
 
-  def coords do
+  @tag iterations: 10000
+  property "neighbors is reversible" do
+    for_all geohash in geocodes_domain() do
+      geohash = to_string(geohash)
+
+      for {direction, opposite} <- [{"n", "s"}, {"e", "w"}, {"s", "n"}, {"w", "e"}] do
+        adj = Geohash.adjacent(geohash, direction)
+        original = Geohash.adjacent(adj, opposite)
+        assert(
+          geohash === original,
+          "Inverse operation didn't work \"#{geohash} -> #{adj} -> #{original}\""
+        )
+      end |> Enum.all?
+    end
+  end
+
+  def coords_domain do
     domain(
       :coord_lat,
       fn (self, _size) ->
@@ -101,7 +118,7 @@ defmodule GeohashTest do
 
   @tag iterations: 10000
   property "encode -> decode -> encode is the same geohash" do
-    for_all {lat, lng} in coords() do
+    for_all {lat, lng} in coords_domain() do
       precision = :rand.uniform(8)
       geohash = Geohash.encode(lat, lng, precision)
       {new_lat, new_lng} = Geohash.decode(geohash)

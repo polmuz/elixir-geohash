@@ -14,6 +14,21 @@ defmodule GeohashTest do
     assert Geohash.encode(-25.38262, -49.26561, 8) == "6gkzwgjz"
   end
 
+  test "Geohash.encode matches elasticsearch geohash example" do
+    assert Geohash.encode(51.501568, -0.141257, 1)  == "g"
+    assert Geohash.encode(51.501568, -0.141257, 2)  == "gc"
+    assert Geohash.encode(51.501568, -0.141257, 3)  == "gcp"
+    assert Geohash.encode(51.501568, -0.141257, 4)  == "gcpu"
+    assert Geohash.encode(51.501568, -0.141257, 5)  == "gcpuu"
+    assert Geohash.encode(51.501568, -0.141257, 6)  == "gcpuuz"
+    assert Geohash.encode(51.501568, -0.141257, 7)  == "gcpuuz9"
+    assert Geohash.encode(51.501568, -0.141257, 8)  == "gcpuuz94"
+    assert Geohash.encode(51.501568, -0.141257, 9)  == "gcpuuz94k"
+    assert Geohash.encode(51.501568, -0.141257, 10) == "gcpuuz94kk"
+    assert Geohash.encode(51.501568, -0.141257, 11) == "gcpuuz94kkp"
+    assert Geohash.encode(51.501568, -0.141257, 12) == "gcpuuz94kkp5"
+  end
+
   test "Geohash.decode_to_bits" do
     assert Geohash.decode_to_bits("ezs42") == <<0b0110111111110000010000010::25>>
   end

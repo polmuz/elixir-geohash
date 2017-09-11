@@ -14,6 +14,10 @@ defmodule GeohashTest do
     assert Geohash.encode(-25.38262, -49.26561, 8) == "6gkzwgjz"
   end
 
+  test "Geohash.bounds" do
+    assert Geohash.bounds("u4pruydqqv") == %{min_x: 10.407432317733765, min_y: 57.649109959602356, max_x: 10.407443046569824, max_y: 57.649115324020386}
+  end
+
   test "Geohash.encode matches elasticsearch geohash example" do
     assert Geohash.encode(51.501568, -0.141257, 1)  == "g"
     assert Geohash.encode(51.501568, -0.141257, 2)  == "gc"

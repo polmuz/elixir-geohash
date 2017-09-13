@@ -128,6 +128,12 @@ defmodule Geohash do
     |> bits_to_coordinates_pair
   end
 
+  def bounds(geohash) do
+    geohash
+    |> decode_to_bits
+    |> bits_to_bounds
+  end
+
   @doc ~S"""
   Decodes given geohash to a bitstring
 
@@ -149,16 +155,33 @@ defmodule Geohash do
   defp bits_to_coordinates_pair(bits) do
     bitslist = for << bit::1 <- bits >>, do: bit
     lat = bitslist
+      |> min_max_lat
+      |> rounded_middle
+    lon = bitslist
+      |> min_max_lon
+      |> rounded_middle
+    {lat, lon}
+  end
+
+  defp bits_to_bounds(bits) do
+    bitslist = for << bit::1 <- bits >>, do: bit
+    {min_lat, max_lat} = min_max_lat(bitslist)
+    {min_lon, max_lon} = min_max_lon(bitslist)
+    %{min_x: min_lon, min_y: min_lat, max_x: max_lon, max_y: max_lat}
+  end
+
+  defp min_max_lat(bitlist) do
+    bitlist
       |> filter_odd
       |> Enum.reduce(fn (bit, acc) -> <<acc::bitstring, bit::bitstring>> end)
       |> bits_to_coordinate({-90.0, 90.0})
+  end
 
-    lon = bitslist
+  defp min_max_lon(bitlist) do
+    bitlist
       |> filter_even
       |> Enum.reduce(fn (bit, acc) -> <<acc::bitstring, bit::bitstring>> end)
       |> bits_to_coordinate({-180.0, 180.0})
-
-    {lat, lon}
   end
 
   @neighbor %{
@@ -270,10 +293,14 @@ defmodule Geohash do
     (min + max) / 2
   end
 
-  defp bits_to_coordinate(<<>>, min_max) do
+  defp rounded_middle(min_max) do
     min_max
     |> middle
     |> round_coordinate(min_max)
+  end
+
+  defp bits_to_coordinate(<<>>, min_max) do
+    min_max
   end
 
   defp bits_to_coordinate(bits, {min, max}) do

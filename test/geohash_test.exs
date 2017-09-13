@@ -15,7 +15,7 @@ defmodule GeohashTest do
   end
 
   test "Geohash.bounds" do
-    assert Geohash.bounds("u4pruydqqv") == %{min_x: 10.407432317733765, min_y: 57.649109959602356, max_x: 10.407443046569824, max_y: 57.649115324020386}
+    assert Geohash.bounds("u4pruydqqv") == %{min_lon: 10.407432317733765, min_lat: 57.649109959602356, max_lon: 10.407443046569824, max_lat: 57.649115324020386}
   end
 
   test "Geohash.encode matches elasticsearch geohash example" do
@@ -137,12 +137,23 @@ defmodule GeohashTest do
 
   @tag iterations: 10000
   property "encode -> decode -> encode is the same geohash" do
-    for_all {lat, lng} in coords_domain() do
+    for_all {lat, lon} in coords_domain() do
       precision = :rand.uniform(8)
-      geohash = Geohash.encode(lat, lng, precision)
-      {new_lat, new_lng} = Geohash.decode(geohash)
-      new_geohash = Geohash.encode(new_lat, new_lng, precision)
+      geohash = Geohash.encode(lat, lon, precision)
+      {new_lat, new_lon} = Geohash.decode(geohash)
+      new_geohash = Geohash.encode(new_lat, new_lon, precision)
       assert geohash == new_geohash
+    end
+  end
+
+  @tag iterations: 10000
+  property "coordinate encoded is inside geohash boundaries" do
+    for_all {lat, lon} in coords_domain() do
+      precision = :rand.uniform(8)
+      geohash = Geohash.encode(lat, lon, precision)
+      bounds = Geohash.bounds(geohash)
+      assert (bounds.min_lat <= lat && lat <= bounds.max_lat)
+      assert (bounds.min_lon <= lon && lon <= bounds.max_lon)
     end
   end
 end

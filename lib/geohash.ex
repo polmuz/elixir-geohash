@@ -117,7 +117,7 @@ defmodule Geohash do
   ## Examples
 
   ```
-  iex> {lat, lng} = Geohash.decode("ezs42")
+  iex> {_lat, _lng} = Geohash.decode("ezs42")
   {42.605, -5.603}
 
   ```
@@ -147,7 +147,7 @@ defmodule Geohash do
   """
   def decode_to_bits(geohash) do
     geohash
-    |> to_char_list
+    |> to_charlist
     |> Enum.map(&from_geobase32/1)
     |> Enum.reduce(<<>>, fn(c, acc) -> << acc::bitstring, c::bitstring >> end)
   end
@@ -167,7 +167,7 @@ defmodule Geohash do
     bitslist = for << bit::1 <- bits >>, do: bit
     {min_lat, max_lat} = min_max_lat(bitslist)
     {min_lon, max_lon} = min_max_lon(bitslist)
-    %{min_x: min_lon, min_y: min_lat, max_x: max_lon, max_y: max_lat}
+    %{min_lon: min_lon, min_lat: min_lat, max_lon: max_lon, max_lat: max_lat}
   end
 
   defp min_max_lat(bitlist) do
@@ -325,7 +325,8 @@ defmodule Geohash do
   defp from_geobase32(char) do
     @geobase32
     |> Enum.with_index
-    |> Enum.filter_map(fn {x, _} -> x == char end, fn {_, i} -> <<i::5>> end)
+    |> Enum.filter(fn {x, _} -> x == char end)
+    |> Enum.map(fn {_, i} -> <<i::5>> end)
     |> List.first
   end
 end

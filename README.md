@@ -47,7 +47,7 @@ Geohash.adjacent("abx1","n")
 
 ```Elixir
 Geohash.bounds("u4pruydqqv")
-# %{min_x: 10.407432317733765, min_y: 57.649109959602356, max_x: 10.407443046569824, max_y: 57.649115324020386}
+# %{min_lon: 10.407432317733765, min_lat: 57.649109959602356, max_lon: 10.407443046569824, max_lat: 57.649115324020386}
 ```
 
 ## Installation

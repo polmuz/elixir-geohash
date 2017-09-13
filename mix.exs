@@ -3,7 +3,7 @@ defmodule Geohash.Mixfile do
 
   def project do
     [app: :geohash,
-     version: "1.0.2",
+     version: "1.1.0",
      elixir: "~> 1.3",
      description: description(),
      package: package(),

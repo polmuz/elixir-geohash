@@ -4,7 +4,7 @@ defmodule Geohash.Mixfile do
   def project do
     [app: :geohash,
      version: "1.0.2",
-     elixir: "~> 1.1",
+     elixir: "~> 1.3",
      description: description(),
      package: package(),
      build_embedded: Mix.env == :prod,

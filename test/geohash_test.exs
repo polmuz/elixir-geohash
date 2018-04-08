@@ -15,19 +15,24 @@ defmodule GeohashTest do
   end
 
   test "Geohash.bounds" do
-    assert Geohash.bounds("u4pruydqqv") == %{min_lon: 10.407432317733765, min_lat: 57.649109959602356, max_lon: 10.407443046569824, max_lat: 57.649115324020386}
+    assert Geohash.bounds("u4pruydqqv") == %{
+             min_lon: 10.407432317733765,
+             min_lat: 57.649109959602356,
+             max_lon: 10.407443046569824,
+             max_lat: 57.649115324020386
+           }
   end
 
   test "Geohash.encode matches elasticsearch geohash example" do
-    assert Geohash.encode(51.501568, -0.141257, 1)  == "g"
-    assert Geohash.encode(51.501568, -0.141257, 2)  == "gc"
-    assert Geohash.encode(51.501568, -0.141257, 3)  == "gcp"
-    assert Geohash.encode(51.501568, -0.141257, 4)  == "gcpu"
-    assert Geohash.encode(51.501568, -0.141257, 5)  == "gcpuu"
-    assert Geohash.encode(51.501568, -0.141257, 6)  == "gcpuuz"
-    assert Geohash.encode(51.501568, -0.141257, 7)  == "gcpuuz9"
-    assert Geohash.encode(51.501568, -0.141257, 8)  == "gcpuuz94"
-    assert Geohash.encode(51.501568, -0.141257, 9)  == "gcpuuz94k"
+    assert Geohash.encode(51.501568, -0.141257, 1) == "g"
+    assert Geohash.encode(51.501568, -0.141257, 2) == "gc"
+    assert Geohash.encode(51.501568, -0.141257, 3) == "gcp"
+    assert Geohash.encode(51.501568, -0.141257, 4) == "gcpu"
+    assert Geohash.encode(51.501568, -0.141257, 5) == "gcpuu"
+    assert Geohash.encode(51.501568, -0.141257, 6) == "gcpuuz"
+    assert Geohash.encode(51.501568, -0.141257, 7) == "gcpuuz9"
+    assert Geohash.encode(51.501568, -0.141257, 8) == "gcpuuz94"
+    assert Geohash.encode(51.501568, -0.141257, 9) == "gcpuuz94k"
     assert Geohash.encode(51.501568, -0.141257, 10) == "gcpuuz94kk"
     assert Geohash.encode(51.501568, -0.141257, 11) == "gcpuuz94kkp"
     assert Geohash.encode(51.501568, -0.141257, 12) == "gcpuuz94kkp5"
@@ -45,14 +50,17 @@ defmodule GeohashTest do
   end
 
   test "Geohash.neighbors" do
-    assert Geohash.neighbors("6gkzwgjz") == %{"n" => "6gkzwgmb",
-                                              "s" => "6gkzwgjy",
-                                              "e" => "6gkzwgnp",
-                                              "w" => "6gkzwgjx",
-                                              "ne"=> "6gkzwgq0",
-                                              "se"=> "6gkzwgnn",
-                                              "nw"=> "6gkzwgm8",
-                                              "sw"=> "6gkzwgjw"}
+    assert Geohash.neighbors("6gkzwgjz") == %{
+             "n" => "6gkzwgmb",
+             "s" => "6gkzwgjy",
+             "e" => "6gkzwgnp",
+             "w" => "6gkzwgjx",
+             "ne" => "6gkzwgq0",
+             "se" => "6gkzwgnn",
+             "nw" => "6gkzwgm8",
+             "sw" => "6gkzwgjw"
+           }
+
     assert Geohash.adjacent("ww8p1r4t8", "e") == "ww8p1r4t9"
   end
 
@@ -79,25 +87,25 @@ defmodule GeohashTest do
       for {direction, opposite} <- [{"n", "s"}, {"e", "w"}, {"s", "n"}, {"w", "e"}] do
         adj = Geohash.adjacent(geohash, direction)
         original = Geohash.adjacent(adj, opposite)
+
         assert(
           geohash === original,
           "Inverse operation didn't work \"#{geohash} -> #{adj} -> #{original}\""
         )
-      end |> Enum.all?
+      end
+      |> Enum.all?()
     end
   end
 
   def coords_domain do
     domain(
       :coord_lat,
-      fn (self, _size) ->
-        lat = 90.0 - :rand.uniform * 90.0 * 2
-        lng = 180.0 - :rand.uniform * 180.0 * 2
+      fn self, _size ->
+        lat = 90.0 - :rand.uniform() * 90.0 * 2
+        lng = 180.0 - :rand.uniform() * 180.0 * 2
         {self, {lat, lng}}
       end,
-      fn
-        (_self, _value) -> {0, 0}
-      end
+      fn _self, _value -> {0, 0} end
     )
   end
 
@@ -152,8 +160,8 @@ defmodule GeohashTest do
       precision = :rand.uniform(8)
       geohash = Geohash.encode(lat, lon, precision)
       bounds = Geohash.bounds(geohash)
-      assert (bounds.min_lat <= lat && lat <= bounds.max_lat)
-      assert (bounds.min_lon <= lon && lon <= bounds.max_lon)
+      assert bounds.min_lat <= lat && lat <= bounds.max_lat
+      assert bounds.min_lon <= lon && lon <= bounds.max_lon
     end
   end
 end

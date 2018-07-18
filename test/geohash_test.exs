@@ -1,6 +1,6 @@
 defmodule GeohashTest do
   use ExUnit.Case
-  use ExCheck
+  use ExUnitProperties
   doctest Geohash
 
   test "Geohash.encode" do
@@ -66,11 +66,11 @@ defmodule GeohashTest do
 
   @geobase32 '0123456789bcdefghjkmnpqrstuvwxyz'
 
-  defp geocodes_domain, do: resize(12, non_empty(list(elements(@geobase32))))
+  defp geocodes_domain,
+    do: StreamData.list_of(StreamData.member_of(@geobase32), min_length: 1, max_length: 12)
 
-  @tag iterations: 10000
   property "decode is reversible" do
-    for_all geohash in geocodes_domain() do
+    check all geohash <- geocodes_domain(), max_runs: 10000 do
       geohash = to_string(geohash)
       precision = String.length(geohash)
       {lat, lng} = Geohash.decode(geohash)
@@ -81,7 +81,7 @@ defmodule GeohashTest do
 
   @tag iterations: 10000
   property "neighbors is reversible" do
-    for_all geohash in geocodes_domain() do
+    check all geohash <- geocodes_domain(), max_runs: 10000 do
       geohash = to_string(geohash)
 
       for {direction, opposite} <- [{"n", "s"}, {"e", "w"}, {"s", "n"}, {"w", "e"}] do
@@ -97,18 +97,6 @@ defmodule GeohashTest do
     end
   end
 
-  def coords_domain do
-    domain(
-      :coord_lat,
-      fn self, _size ->
-        lat = 90.0 - :rand.uniform() * 90.0 * 2
-        lng = 180.0 - :rand.uniform() * 180.0 * 2
-        {self, {lat, lng}}
-      end,
-      fn _self, _value -> {0, 0} end
-    )
-  end
-
   # TODO: Check if error margins are correct, if so, fix error
   #       in rounding code
   # Error margins taken from Wikipedia's Geohash page
@@ -120,33 +108,38 @@ defmodule GeohashTest do
   #   5 => {0.022, 0.022},
   #   6 => {0.0027, 0.0055},
   #   7 => {0.00068, 0.00068},
-  #   8 => {0.000085, 0.00017},
+  #   8 => {0.000085, 0.00017}
   # }
-  #
+
   # property "errors are below margin after encode/decode" do
-  #   for_all {lat, lng} in coords() do
-  #     precision = :rand.uniform(8)
+  #   check all lat <- StreamData.float(min: -90.0, max: 90.0),
+  #             lng <- StreamData.float(min: -180.0, max: 180.0),
+  #             precision <- StreamData.integer(1..8),
+  #             max_runs: 500 do
   #     geohash = Geohash.encode(lat, lng, precision)
   #     {new_lat, new_lng} = Geohash.decode(geohash)
   #     new_geohash = Geohash.encode(new_lat, new_lng, precision)
   #     {lat_error, lng_error} = @error_margin[precision]
-  #     ok? = (abs(new_lat - lat) <= lat_error and abs(lng - new_lng) <= lng_error)
+  #     ok? = abs(new_lat - lat) <= lat_error and abs(lng - new_lng) <= lng_error
+
   #     unless ok? do
-  #       IO.inspect {"coords", {lat, lng}}
-  #       IO.inspect {"precision", precision}
-  #       IO.inspect {"new coords", {new_lat, new_lng}}
-  #       IO.inspect {"error margin", {lat_error, lng_error}}
-  #       IO.inspect {"real error", {new_lat - lat, lng - new_lng}}
-  #       IO.inspect {geohash, new_geohash}
+  #       IO.inspect({"coords", {lat, lng}})
+  #       IO.inspect({"precision", precision})
+  #       IO.inspect({"new coords", {new_lat, new_lng}})
+  #       IO.inspect({"error margin", {lat_error, lng_error}})
+  #       IO.inspect({"real error", {new_lat - lat, lng - new_lng}})
+  #       IO.inspect({geohash, new_geohash})
   #     end
+
   #     ok?
   #   end
   # end
 
-  @tag iterations: 10000
   property "encode -> decode -> encode is the same geohash" do
-    for_all {lat, lon} in coords_domain() do
-      precision = :rand.uniform(8)
+    check all lat <- StreamData.float(min: -90.0, max: 90.0),
+              lon <- StreamData.float(min: -180.0, max: 180.0),
+              precision <- StreamData.integer(1..8),
+              max_runs: 500 do
       geohash = Geohash.encode(lat, lon, precision)
       {new_lat, new_lon} = Geohash.decode(geohash)
       new_geohash = Geohash.encode(new_lat, new_lon, precision)
@@ -154,10 +147,11 @@ defmodule GeohashTest do
     end
   end
 
-  @tag iterations: 10000
   property "coordinate encoded is inside geohash boundaries" do
-    for_all {lat, lon} in coords_domain() do
-      precision = :rand.uniform(8)
+    check all lat <- StreamData.float(min: -90.0, max: 90.0),
+              lon <- StreamData.float(min: -180.0, max: 180.0),
+              precision <- StreamData.integer(1..8),
+              max_runs: 800 do
       geohash = Geohash.encode(lat, lon, precision)
       bounds = Geohash.bounds(geohash)
       assert bounds.min_lat <= lat && lat <= bounds.max_lat

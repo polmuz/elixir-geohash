@@ -130,6 +130,22 @@ defmodule Geohash do
     |> bits_to_coordinates_pair
   end
 
+  @doc ~S"""
+  Calculates bounds for a given geohash
+
+  ## Examples
+
+  ```
+  iex> Geohash.bounds("u4pruydqqv")
+  %{
+    min_lon: 10.407432317733765,
+    min_lat: 57.649109959602356,
+    max_lon: 10.407443046569824,
+    max_lat: 57.649115324020386
+  }
+
+  ```
+  """
   def bounds(geohash) do
     geohash
     |> decode_to_bits

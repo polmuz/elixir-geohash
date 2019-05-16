@@ -40,7 +40,10 @@ defmodule Geohash do
   ```
   """
 
-  @geobase32 '0123456789bcdefghjkmnpqrstuvwxyz'
+  import Geohash.Helpers
+
+  @geobase32 List.to_tuple('0123456789bcdefghjkmnpqrstuvwxyz')
+  @geobase32_index prepare_indexed('0123456789bcdefghjkmnpqrstuvwxyz')
 
   @doc ~S"""
   Encodes given coordinates to a geohash of length `precision`
@@ -80,7 +83,7 @@ defmodule Geohash do
   end
 
   defp to_geobase32(bits) do
-    chars = for <<c::5 <- bits>>, do: Enum.fetch!(@geobase32, c)
+    chars = for <<c::5 <- bits>>, do: elem(@geobase32, c)
     chars |> to_string
   end
 
@@ -196,14 +199,12 @@ defmodule Geohash do
   defp min_max_lat(bitlist) do
     bitlist
     |> filter_odd
-    |> Enum.reduce(fn bit, acc -> <<acc::bitstring, bit::bitstring>> end)
     |> bits_to_coordinate({-90.0, 90.0})
   end
 
   defp min_max_lon(bitlist) do
     bitlist
     |> filter_even
-    |> Enum.reduce(fn bit, acc -> <<acc::bitstring, bit::bitstring>> end)
     |> bits_to_coordinate({-180.0, 180.0})
   end
 
@@ -212,18 +213,18 @@ defmodule Geohash do
     "s" => {'14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp'},
     "e" => {'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy'},
     "w" => {'238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb'}
-  }
+  } |> prepare_directions
   @border %{
     "n" => {'prxz', 'bcfguvyz'},
     "s" => {'028b', '0145hjnp'},
     "e" => {'bcfguvyz', 'prxz'},
     "w" => {'0145hjnp', '028b'}
-  }
+  } |> prepare_directions
 
   defp border_case(direction, type, tail) do
     @border[direction]
     |> elem(type)
-    |> Enum.find_index(fn r -> r == tail end)
+    |> Map.get(tail)
   end
 
   @doc ~S"""
@@ -257,9 +258,8 @@ defmodule Geohash do
     pos =
       @neighbor[direction]
       |> elem(type)
-      |> Enum.find_index(fn r -> r == last_ch end)
-
-    q = Enum.slice(@geobase32, pos, 1)
+      |> Map.get(last_ch)
+    q = [elem(@geobase32, pos)]
     parent <> to_string(q)
   end
 
@@ -297,19 +297,22 @@ defmodule Geohash do
     }
   end
 
-  defp filter_even(bitslists) do
-    bitslists |> filter_periodically(2, 0)
+  def filter_even(bitlists) do
+    {acc, _even?} =
+      Enum.reduce(bitlists, {<<>>, true},
+        fn _bit, {acc, false = _even?} -> {acc, true}
+           bit, {acc, true = _even?} ->  {<<acc::bitstring, bit::1>>, false}
+        end)
+    acc
   end
 
-  defp filter_odd(bitslists) do
-    bitslists |> filter_periodically(2, 1)
-  end
-
-  defp filter_periodically(bitslist, period, offset) do
-    bitslist
-    |> Enum.with_index()
-    |> Enum.filter(fn {_, i} -> rem(i, period) == offset end)
-    |> Enum.map(fn {bit, _} -> <<bit::1>> end)
+  def filter_odd(bitlists) do
+    {acc, _even?} =
+      Enum.reduce(bitlists, {<<>>, true},
+        fn bit, {acc, false = _even?} -> {<<acc::bitstring, bit::1>>, true}
+          _bit, {acc, true  = _even?} -> {acc, false}
+        end)
+    acc
   end
 
   defp middle({min, max}) do
@@ -353,10 +356,7 @@ defmodule Geohash do
   end
 
   defp from_geobase32(char) do
-    @geobase32
-    |> Enum.with_index()
-    |> Enum.filter(fn {x, _} -> x == char end)
-    |> Enum.map(fn {_, i} -> <<i::5>> end)
-    |> List.first()
+    %{^char => i} = @geobase32_index
+    <<i::5>>
   end
 end

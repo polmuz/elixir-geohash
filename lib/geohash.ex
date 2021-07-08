@@ -1,43 +1,6 @@
 defmodule Geohash do
   @moduledoc ~S"""
-  Geohash encode/decode and helper functions
-
-  ## Usage
-
-  - Encode coordinates with `Geohash.encode(lat, lon, precision \\ 11)`
-
-  ```
-  Geohash.encode(42.6, -5.6, 5)
-  # "ezs42"
-  ```
-
-  - Decode coordinates with `Geohash.decode(geohash)`
-
-  ```
-  Geohash.decode("ezs42")
-  # {42.605, -5.603}
-  ```
-
-  - Find neighbors with `Geohash.neighbors(geohash)`
-
-  ```
-  Geohash.neighbors("abx1")
-  # %{"n" => "abx4",
-  #   "s" => "abx0",
-  #   "e" => "abx3",
-  #   "w" => "abwc",
-  #   "ne" => "abx6",
-  #   "se" => "abx2",
-  #   "nw" => "abwf",
-  #   "sw" => "abwb"}
-  ```
-
-  - Find adjacent with `Geohash.adjacent(geohash, direction)`
-
-  ```
-  Geohash.adjacent("abx1", "n")
-  # "abx4"
-  ```
+  Geohash encoder/decoder and helper functions.
   """
 
   import Geohash.Helpers
@@ -46,15 +9,13 @@ defmodule Geohash do
   @geobase32_index prepare_indexed('0123456789bcdefghjkmnpqrstuvwxyz')
 
   @doc ~S"""
-  Encodes given coordinates to a geohash of length `precision`
+  Encodes given coordinates to a geohash of length `precision`.
 
   ## Examples
 
-  ```
-  iex> Geohash.encode(42.6, -5.6, 5)
-  "ezs42"
+      iex> Geohash.encode(42.6, -5.6, 5)
+      "ezs42"
 
-  ```
   """
   def encode(lat, lon, precision \\ 11) do
     bits = encode_to_bits(lat, lon, precision * 5)
@@ -62,15 +23,13 @@ defmodule Geohash do
   end
 
   @doc ~S"""
-  Encodes given coordinates to a bitstring of length `bits_length`
+  Encodes given coordinates to a bitstring of length `bits_length`.
 
   ## Examples
 
-  ```
-  iex> Geohash.encode_to_bits(42.6, -5.6, 25)
-  <<0b0110111111110000010000010::25>>
+      iex> Geohash.encode_to_bits(42.6, -5.6, 25)
+      <<0b0110111111110000010000010::25>>
 
-  ```
   """
   def encode_to_bits(lat, lon, bits_length) do
     starting_position = bits_length - 1
@@ -117,15 +76,13 @@ defmodule Geohash do
   # --------------------------
 
   @doc ~S"""
-  Decodes given geohash to a coordinate pair
+  Decodes given geohash to a coordinate pair.
 
   ## Examples
 
-  ```
-  iex> {_lat, _lng} = Geohash.decode("ezs42")
-  {42.605, -5.603}
+      iex> {_lat, _lng} = Geohash.decode("ezs42")
+      {42.605, -5.603}
 
-  ```
   """
   def decode(geohash) do
     geohash
@@ -134,20 +91,18 @@ defmodule Geohash do
   end
 
   @doc ~S"""
-  Calculates bounds for a given geohash
+  Calculates bounds for a given geohash.
 
   ## Examples
 
-  ```
-  iex> Geohash.bounds("u4pruydqqv")
-  %{
-    min_lon: 10.407432317733765,
-    min_lat: 57.649109959602356,
-    max_lon: 10.407443046569824,
-    max_lat: 57.649115324020386
-  }
+      iex> Geohash.bounds("u4pruydqqv")
+      %{
+        min_lon: 10.407432317733765,
+        min_lat: 57.649109959602356,
+        max_lon: 10.407443046569824,
+        max_lat: 57.649115324020386
+      }
 
-  ```
   """
   def bounds(geohash) do
     geohash
@@ -156,15 +111,13 @@ defmodule Geohash do
   end
 
   @doc ~S"""
-  Decodes given geohash to a bitstring
+  Decodes given geohash to a bitstring.
 
   ## Examples
 
-  ```
-  iex> Geohash.decode_to_bits("ezs42")
-  <<0b0110111111110000010000010::25>>
+      iex> Geohash.decode_to_bits("ezs42")
+      <<0b0110111111110000010000010::25>>
 
-  ```
   """
   def decode_to_bits(geohash) do
     geohash
@@ -209,17 +162,19 @@ defmodule Geohash do
   end
 
   @neighbor %{
-    "n" => {'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx'},
-    "s" => {'14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp'},
-    "e" => {'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy'},
-    "w" => {'238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb'}
-  } |> prepare_directions
+              "n" => {'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx'},
+              "s" => {'14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp'},
+              "e" => {'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy'},
+              "w" => {'238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb'}
+            }
+            |> prepare_directions
   @border %{
-    "n" => {'prxz', 'bcfguvyz'},
-    "s" => {'028b', '0145hjnp'},
-    "e" => {'bcfguvyz', 'prxz'},
-    "w" => {'0145hjnp', '028b'}
-  } |> prepare_directions
+            "n" => {'prxz', 'bcfguvyz'},
+            "s" => {'028b', '0145hjnp'},
+            "e" => {'bcfguvyz', 'prxz'},
+            "w" => {'0145hjnp', '028b'}
+          }
+          |> prepare_directions
 
   defp border_case(direction, type, tail) do
     @border[direction]
@@ -229,15 +184,14 @@ defmodule Geohash do
 
   @doc ~S"""
   Calculate `adjacent/2` geohash in ordinal direction `["n","s","e","w"]`.
+
   Deals with boundary cases when adjacent is not of the same prefix.
 
   ## Examples
 
-  ```
-  iex> Geohash.adjacent("abx1","n")
-  "abx4"
+      iex> Geohash.adjacent("abx1","n")
+      "abx4"
 
-  ```
   """
   def adjacent(geohash, direction) when direction in ["n", "s", "w", "e"] do
     prefix_len = byte_size(geohash) - 1
@@ -259,27 +213,28 @@ defmodule Geohash do
       @neighbor[direction]
       |> elem(type)
       |> Map.get(last_ch)
+
     q = [elem(@geobase32, pos)]
     parent <> to_string(q)
   end
 
   @doc ~S"""
-  Calculate adjacent hashes for the 8 touching `neighbors/1`
+  Calculate adjacent hashes for the 8 touching `neighbors/1`.
 
   ## Examples
 
-  ```
-  iex> Geohash.neighbors("abx1")
-  %{"n" => "abx4",
-    "s" => "abx0",
-    "e" => "abx3",
-    "w" => "abwc",
-    "ne" => "abx6",
-    "se" => "abx2",
-    "nw" => "abwf",
-    "sw" => "abwb"}
+      iex> Geohash.neighbors("abx1")
+      %{
+        "n" => "abx4",
+        "s" => "abx0",
+        "e" => "abx3",
+        "w" => "abwc",
+        "ne" => "abx6",
+        "se" => "abx2",
+        "nw" => "abwf",
+        "sw" => "abwb"
+      }
 
-  ```
   """
   def neighbors(geohash) do
     n = adjacent(geohash, "n")
@@ -299,19 +254,21 @@ defmodule Geohash do
 
   def filter_even(bitlists) do
     {acc, _even?} =
-      Enum.reduce(bitlists, {<<>>, true},
-        fn _bit, {acc, false = _even?} -> {acc, true}
-           bit, {acc, true = _even?} ->  {<<acc::bitstring, bit::1>>, false}
-        end)
+      Enum.reduce(bitlists, {<<>>, true}, fn
+        _bit, {acc, false = _even?} -> {acc, true}
+        bit, {acc, true = _even?} -> {<<acc::bitstring, bit::1>>, false}
+      end)
+
     acc
   end
 
   def filter_odd(bitlists) do
     {acc, _even?} =
-      Enum.reduce(bitlists, {<<>>, true},
-        fn bit, {acc, false = _even?} -> {<<acc::bitstring, bit::1>>, true}
-          _bit, {acc, true  = _even?} -> {acc, false}
-        end)
+      Enum.reduce(bitlists, {<<>>, true}, fn
+        bit, {acc, false = _even?} -> {<<acc::bitstring, bit::1>>, true}
+        _bit, {acc, true = _even?} -> {acc, false}
+      end)
+
     acc
   end
 

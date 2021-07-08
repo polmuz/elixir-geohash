@@ -70,7 +70,7 @@ defmodule GeohashTest do
     do: StreamData.list_of(StreamData.member_of(@geobase32), min_length: 1, max_length: 12)
 
   property "decode is reversible" do
-    check all geohash <- geocodes_domain(), max_runs: 10000 do
+    check all(geohash <- geocodes_domain(), max_runs: 10000) do
       geohash = to_string(geohash)
       precision = String.length(geohash)
       {lat, lng} = Geohash.decode(geohash)
@@ -81,7 +81,7 @@ defmodule GeohashTest do
 
   @tag iterations: 10000
   property "neighbors is reversible" do
-    check all geohash <- geocodes_domain(), max_runs: 10000 do
+    check all(geohash <- geocodes_domain(), max_runs: 10000) do
       geohash = to_string(geohash)
 
       for {direction, opposite} <- [{"n", "s"}, {"e", "w"}, {"s", "n"}, {"w", "e"}] do
@@ -136,10 +136,12 @@ defmodule GeohashTest do
   # end
 
   property "encode -> decode -> encode is the same geohash" do
-    check all lat <- StreamData.float(min: -90.0, max: 90.0),
-              lon <- StreamData.float(min: -180.0, max: 180.0),
-              precision <- StreamData.integer(1..8),
-              max_runs: 500 do
+    check all(
+            lat <- StreamData.float(min: -90.0, max: 90.0),
+            lon <- StreamData.float(min: -180.0, max: 180.0),
+            precision <- StreamData.integer(1..8),
+            max_runs: 500
+          ) do
       geohash = Geohash.encode(lat, lon, precision)
       {new_lat, new_lon} = Geohash.decode(geohash)
       new_geohash = Geohash.encode(new_lat, new_lon, precision)
@@ -148,10 +150,12 @@ defmodule GeohashTest do
   end
 
   property "coordinate encoded is inside geohash boundaries" do
-    check all lat <- StreamData.float(min: -90.0, max: 90.0),
-              lon <- StreamData.float(min: -180.0, max: 180.0),
-              precision <- StreamData.integer(1..8),
-              max_runs: 800 do
+    check all(
+            lat <- StreamData.float(min: -90.0, max: 90.0),
+            lon <- StreamData.float(min: -180.0, max: 180.0),
+            precision <- StreamData.integer(1..8),
+            max_runs: 800
+          ) do
       geohash = Geohash.encode(lat, lon, precision)
       bounds = Geohash.bounds(geohash)
       assert bounds.min_lat <= lat && lat <= bounds.max_lat

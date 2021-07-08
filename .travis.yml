@@ -9,21 +9,25 @@ otp_release:
   - 20.3
   - 21.3
   - 22.3
-  - 23.3
+  - 23.0
   - 24.0
 
 matrix:
   exclude:
     - elixir: 1.8
-      opt_release: 23.3
+      opt_release: 23.0
     - elixir: 1.8
       opt_release: 24.0
     - elixir: 1.9
-      opt_release: 23.3
+      opt_release: 23.0
     - elixir: 1.9
       opt_release: 24.0
     - elixir: 1.10
       opt_release: 20.3
+    - elixir: 1.10
+      opt_release: 23.0
+    - elixir: 1.10
+      opt_release: 24.0
     - elixir: 1.11
       opt_release: 20.3
     - elixir: 1.12

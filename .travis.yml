@@ -16,9 +16,11 @@ matrix:
   exclude:
     - elixir: 1.8
       opt_release: 23.3
+    - elixir: 1.8
       opt_release: 24.0
     - elixir: 1.9
       opt_release: 23.3
+    - elixir: 1.9
       opt_release: 24.0
     - elixir: 1.10
       opt_release: 20.3
@@ -26,4 +28,5 @@ matrix:
       opt_release: 20.3
     - elixir: 1.12
       opt_release: 20.3
+    - elixir: 1.12
       opt_release: 21.3

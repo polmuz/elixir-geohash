@@ -2,7 +2,7 @@ defmodule Geohash.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/polmuz/elixir-geohash"
-  @version "1.2.1"
+  @version "1.2.2"
 
   def project do
     [

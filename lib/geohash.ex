@@ -5,8 +5,8 @@ defmodule Geohash do
 
   import Geohash.Helpers
 
-  @geobase32 List.to_tuple('0123456789bcdefghjkmnpqrstuvwxyz')
-  @geobase32_index prepare_indexed('0123456789bcdefghjkmnpqrstuvwxyz')
+  @geobase32 List.to_tuple(~c"0123456789bcdefghjkmnpqrstuvwxyz")
+  @geobase32_index prepare_indexed(~c"0123456789bcdefghjkmnpqrstuvwxyz")
 
   @doc ~S"""
   Encodes given coordinates to a geohash of length `precision`.
@@ -162,17 +162,17 @@ defmodule Geohash do
   end
 
   @neighbor %{
-              "n" => {'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx'},
-              "s" => {'14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp'},
-              "e" => {'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy'},
-              "w" => {'238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb'}
+              "n" => {~c"p0r21436x8zb9dcf5h7kjnmqesgutwvy", ~c"bc01fg45238967deuvhjyznpkmstqrwx"},
+              "s" => {~c"14365h7k9dcfesgujnmqp0r2twvyx8zb", ~c"238967debc01fg45kmstqrwxuvhjyznp"},
+              "e" => {~c"bc01fg45238967deuvhjyznpkmstqrwx", ~c"p0r21436x8zb9dcf5h7kjnmqesgutwvy"},
+              "w" => {~c"238967debc01fg45kmstqrwxuvhjyznp", ~c"14365h7k9dcfesgujnmqp0r2twvyx8zb"}
             }
             |> prepare_directions
   @border %{
-            "n" => {'prxz', 'bcfguvyz'},
-            "s" => {'028b', '0145hjnp'},
-            "e" => {'bcfguvyz', 'prxz'},
-            "w" => {'0145hjnp', '028b'}
+            "n" => {~c"prxz", ~c"bcfguvyz"},
+            "s" => {~c"028b", ~c"0145hjnp"},
+            "e" => {~c"bcfguvyz", ~c"prxz"},
+            "w" => {~c"0145hjnp", ~c"028b"}
           }
           |> prepare_directions
 

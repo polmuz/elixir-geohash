@@ -1,6 +1,7 @@
 defmodule GeohashTest do
   use ExUnit.Case
   use ExUnitProperties
+
   doctest Geohash
 
   test "Geohash.encode" do

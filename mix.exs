@@ -2,13 +2,13 @@ defmodule Geohash.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/polmuz/elixir-geohash"
-  @version "1.2.2"
+  @version "1.3.0"
 
   def project do
     [
       app: :geohash,
       version: @version,
-      elixir: "~> 1.8",
+      elixir: "~> 1.15",
       package: package(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,

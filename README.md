@@ -1,6 +1,6 @@
 # Geohash
 
-[![Build Status](https://travis-ci.org/polmuz/elixir-geohash.svg?branch=master)](https://travis-ci.org/polmuz/elixir-geohash)
+![Tests Status](https://github.com/polmuz/elixir-geohash/actions/workflows/tests.yml/badge.svg)
 [![Module Version](https://img.shields.io/hexpm/v/geohash.svg)](https://hex.pm/packages/geohash)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/geohash/)
 [![Total Download](https://img.shields.io/hexpm/dt/geohash.svg)](https://hex.pm/packages/geohash)

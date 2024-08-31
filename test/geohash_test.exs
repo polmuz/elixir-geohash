@@ -47,7 +47,7 @@ defmodule GeohashTest do
     assert Geohash.decode("ww8p1r4t8") == {37.832386, 112.558386}
     assert Geohash.decode("ezs42") == {42.605, -5.603}
     assert Geohash.decode("u4pruy") == {57.648, 10.410}
-    assert Geohash.decode('6gkzwgjz') == {-25.38262, -49.26561}
+    assert Geohash.decode(~c"6gkzwgjz") == {-25.38262, -49.26561}
   end
 
   test "Geohash.neighbors" do
@@ -65,7 +65,7 @@ defmodule GeohashTest do
     assert Geohash.adjacent("ww8p1r4t8", "e") == "ww8p1r4t9"
   end
 
-  @geobase32 '0123456789bcdefghjkmnpqrstuvwxyz'
+  @geobase32 ~c"0123456789bcdefghjkmnpqrstuvwxyz"
 
   defp geocodes_domain,
     do: StreamData.list_of(StreamData.member_of(@geobase32), min_length: 1, max_length: 12)

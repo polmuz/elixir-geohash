@@ -196,7 +196,7 @@ defmodule Geohash do
   def adjacent(geohash, direction) when direction in ["n", "s", "w", "e"] do
     prefix_len = byte_size(geohash) - 1
     # parent will be a string of the prefix, last_ch will be an int of last char
-    <<parent::binary-size(prefix_len), last_ch::size(8)>> = geohash
+    <<parent::binary-size(^prefix_len), last_ch::size(8)>> = geohash
     type = rem(prefix_len + 1, 2)
 
     # check for edge-cases which don't share common prefix
